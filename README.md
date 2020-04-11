@@ -9,7 +9,7 @@ A cog for discord.py that automatically generates markdown documentation for you
 Clone the repo into your cogs folder
 
 ```
-git clone
+git clone https://github.com/zedchance/botdoc.git
 ```
 
 Add `cogs.botdoc.botdoc` to your cogs array:
@@ -19,9 +19,9 @@ cogs = [ ..., 'cogs.embed_help.help']
 
 ### If your bot doesn't have cogs
 
-Create a directory called `cogs` in your project and clone
+Create a directory called `cogs` in your project and clone into it:
 ```
-git clone
+git clone https://github.com/zedchance/botdoc.git
 ```
 
 Create a list called `cogs` like this:
