@@ -1,9 +1,7 @@
 # botdoc
 # Documentation generating cog for discord.py
 
-import sys
 import os
-import discord
 from discord.ext import commands
 
 
@@ -20,9 +18,14 @@ def _text(text):
     return f'{text}\n\n'
 
 
-def _ol(text):
-    """ Returns a single item for an unordered list string """
+def _local_toc(text):
+    """ Returns a single item for an unordered list with link to other section """
     return f' * [{text}](#{text})\n'
+
+
+def _global_toc(cog, text):
+    """ Returns a single item for an unordered list with link to other file in same folder """
+    return f' * [{text}]({cog}.md#{text})\n'
 
 
 def _code_block(text):
@@ -33,6 +36,32 @@ def _code_block(text):
 def _inline_code(text):
     """ Returns an inline code string """
     return f'`{text}`'
+
+
+def _make_docs_dir(bot):
+    """ Makes docs dir at same level as the bots main.py file """
+    cwd = os.path.abspath(os.getcwd())
+    out_dir = f'{cwd}/docs'
+    os.makedirs(out_dir, exist_ok=True)
+    print("Created", out_dir, "directory")
+    return out_dir
+
+
+def _generate_index(bot, out_dir):
+    """ Generates an index file with links to all cog doc files """
+    out_filename = f'{out_dir}/index.md'
+    out = open(out_filename, "w")
+    # Title
+    ret = _h(1, "Index")
+    # TOC
+    for cog in bot.cogs:
+        ret += _h(2, cog)
+        for command in bot.get_cog(cog).get_commands():
+            ret += _global_toc(cog, command)
+        ret += '\n'
+    out.write(ret)
+    out.close()
+    print("Outputted index to", out_filename)
 
 
 def _generate_usage(bot, command):
@@ -54,14 +83,8 @@ def _generate_usage(bot, command):
     return _text(_inline_code(temp))
 
 
-def _generate_cog_docs(bot):
+def _generate_cog_docs(bot, out_dir):
     """ Generates a file of documentation for a cog """
-    # Make docs dir
-    cwd = os.path.abspath(os.getcwd())
-    out_dir = f'{cwd}/docs'
-    os.makedirs(out_dir, exist_ok=True)
-    print("Created", out_dir, "directory")
-
     # Run thru the cogs
     for cog in bot.cogs:
         # Make cog doc file
@@ -71,7 +94,7 @@ def _generate_cog_docs(bot):
         ret = _h(1, cog)
         # TOC
         for command in bot.get_cog(cog).get_commands():
-            ret += _ol(command)
+            ret += _local_toc(command)
         # Details
         ret += '\n'
         for command in bot.get_cog(cog).get_commands():
@@ -86,6 +109,8 @@ def _generate_cog_docs(bot):
             ret += _h(3, "Syntax")
             ret += _generate_usage(bot, command)
             ret += _text("---")
+        # Link back to index
+        ret += _global_toc("index", "Index")
         # Output to file
         out.write(ret)
         out.close()
@@ -97,7 +122,9 @@ class Docs(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        _generate_cog_docs(bot)
+        out_dir = _make_docs_dir(bot)
+        _generate_index(bot, out_dir)
+        _generate_cog_docs(bot, out_dir)
 
 
 # Cog setup
