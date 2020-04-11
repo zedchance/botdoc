@@ -30,15 +30,12 @@ def _inline_code(text):
     return f'`{text}`'
 
 
-def _generate_usage(bot, command_name):
+def _generate_usage(bot, command):
     """ Generates a string of how to use a command """
-    if command_name is None:
-        return "command_name is None"
-    temp = f'!b'  # TODO
-    command = bot.get_command(command_name)
+    temp = f'!b '  # TODO
     # Aliases
     if len(command.aliases) == 0:
-        temp += f'{command_name}'
+        temp += f'{command.name}'
     elif len(command.aliases) == 1:
         temp += f'[{command.name}|{command.aliases[0]}]'
     else:
@@ -49,7 +46,7 @@ def _generate_usage(bot, command_name):
     for param in command.clean_params:
         params += f'<{command.clean_params[param]}> '
     temp += f'{params}'
-    return temp
+    return _text(_inline_code(temp))
 
 
 def _generate_cog_docs(bot):
@@ -69,13 +66,13 @@ def _generate_cog_docs(bot):
         for command in bot.get_cog(cog).get_commands():
             # Compile docs
             ret += _h(2, _inline_code(command))
+            ret += _text(command.description)
             ret += _text(command.help)
             ret += _h(3, "Syntax")
-            ret += _text(_inline_code("This is todo"))
+            ret += _generate_usage(bot, command)
             ret += _text("---")
         # Output to file
         out.write(ret)
-        ret = ''
         out.close()
         print("Outputted to", out_filename)
 
@@ -95,4 +92,3 @@ def setup(bot):
 
 if __name__ == '__main__':
     print(f'Add cogs.botdoc.botdoc to your cogs list')
-    exit(1)
