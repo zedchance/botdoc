@@ -20,6 +20,11 @@ def _text(text):
     return f'{text}\n\n'
 
 
+def _ol(text):
+    """ Returns a single item for an unordered list string """
+    return f' * [{text}](#{text})\n'
+
+
 def _code_block(text):
     """ Returns a code block string """
     return f'```\n{text}\n```\n\n'
@@ -62,12 +67,22 @@ def _generate_cog_docs(bot):
         # Make cog doc file
         out_filename = f'{out_dir}/{cog}.md'
         out = open(out_filename, "w")
+        # Title
         ret = _h(1, cog)
+        # TOC
+        for command in bot.get_cog(cog).get_commands():
+            ret += _ol(command)
+        # Details
+        ret += '\n'
         for command in bot.get_cog(cog).get_commands():
             # Compile docs
             ret += _h(2, _inline_code(command))
-            ret += _text(command.description)
-            ret += _text(command.help)
+            if command.description is not None:
+                ret += _text(command.description)
+            else:
+                ret += "No description."
+            if command.help is not None:
+                ret += _text(command.help)
             ret += _h(3, "Syntax")
             ret += _generate_usage(bot, command)
             ret += _text("---")
