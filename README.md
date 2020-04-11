@@ -12,7 +12,7 @@ git clone https://github.com/zedchance/botdoc.git
 
 Add `cogs.botdoc.botdoc` to your cogs array:
 ```py
-cogs = [ ..., 'cogs.embed_help.help']
+cogs = [ ..., 'cogs.botdoc.botdoc']
 ```
 
 ### Once its setup
